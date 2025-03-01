@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GPS Tracking</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDOVBShNOgQkYoFaG-uG9L2YYjHcJfsCXA"></script>
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      color: #ffffff;
+      background-color: #0078d7;
+      padding: 20px;
+      margin: 0;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Map Container */
+    #map {
+      height: 500px;
+      width: 90%;
+      margin: 20px auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border: 1px solid #ddd;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 10px;
+      background-color: #0078d7;
+      color: #ffffff;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    footer a {
+      color: #ffffff;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      #map {
+        width: 95%;
+        height: 400px;
+      }
+
+      h1 {
+        font-size: 24px;
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>GPS Tracking System</h1>
+  <div id="map"></div>
+  <footer>
+    <p>GPS System For Smart Helmet<a href="#" target="_blank"></a></p>
+  </footer>
+
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCSXUW_m9safLb5gyZigoPsICKL7QRGBmY",
+      authDomain: "test-2f1ec.firebaseapp.com",
+      databaseURL: "https://test-2f1ec-default-rtdb.firebaseio.com",
+      projectId: "test-2f1ec",
+      storageBucket: "test-2f1ec.firebasestorage.app",
+      messagingSenderId: "129473857503",
+      appId: "1:129473857503:web:14693fbf861ecbbf3b666a",
+      measurementId: "G-YD3F0FF3G1"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // Initialize Google Maps
+    let map;
+    let marker;
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 0, lng: 0 },
+        zoom: 15,
+      });
+
+      // Fetch GPS data from Firebase
+      database.ref("/").on("value", (snapshot) => {
+        const latitude = snapshot.val().latitude;
+        const longitude = snapshot.val().longitude;
+
+        if (latitude && longitude) {
+          const location = { lat: latitude, lng: longitude };
+
+          // Update map marker
+          if (marker) {
+            marker.setPosition(location);
+          } else {
+            marker = new google.maps.Marker({
+              position: location,
+              map: map,
+            });
+          }
+
+          // Center the map on the new location
+          map.setCenter(location);
+        } else {
+          console.log("No valid GPS data found.");
+        }
+      }, (error) => {
+        console.error("Firebase read failed: ", error);
+      });
+    }
+  </script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDOVBShNOgQkYoFaG-uG9L2YYjHcJfsCXA&callback=initMap"></script>
+</body>
+</html>
